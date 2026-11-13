@@ -50,6 +50,31 @@
     <div class="gps-wrap">
       <button id="gpsBtn" class="gps-btn"><span class="gps-dot">◎</span><span id="gpsLabel">Start drive mode</span></button>
     </div>
+
+    <section id="surveyCard" class="survey-card" hidden>
+      <div class="survey-head">
+        <div><p>ROAD REVIEW</p><strong>Select actual street segments</strong></div>
+        <span id="surveyCount">Loading roads…</span>
+      </div>
+      <p class="survey-help">Tap a highlighted street segment, then choose its status. Use this mainly to answer the Oakland questions that the official maps do not resolve clearly.</p>
+      <div id="selectedSurveyRoad" class="selected-road">Loading named streets from OpenStreetMap…</div>
+      <div class="survey-types" role="group" aria-label="Road classification">
+        <button class="survey-type permitted" data-survey-type="permitted">✓ Permitted</button>
+        <button class="survey-type restricted" data-survey-type="restricted">× Restricted</button>
+        <button class="survey-type crossing" data-survey-type="crossing">↔ Crossing</button>
+        <button class="survey-type uncertain" data-survey-type="uncertain">? Unsure</button>
+      </div>
+      <input id="surveyRoadNote" class="survey-name" type="text" autocomplete="off" placeholder="Optional note, sign, or source">
+      <div class="survey-actions">
+        <button id="undoSurveyRoad">Undo last choice</button>
+        <button id="reloadSurveyRoads">Reload streets</button>
+      </div>
+      <div class="survey-actions">
+        <button id="exportSurvey" class="survey-primary">Share / export</button>
+        <button id="clearSurvey">Clear all</button>
+      </div>
+      <p id="surveyMessage" class="survey-message">Loading selectable road segments…</p>
+    </section>
   </main>
 
   <dialog id="infoDialog">

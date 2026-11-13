@@ -53,6 +53,71 @@ const restrictedNetworks=[
  [[28.548,-81.6302],[28.570,-81.6301]],
  [[28.544,-81.642],[28.544,-81.575]]
 ];
+
+const surveyMode=new URLSearchParams(location.search).get('survey')==='1';
+if(surveyMode){
+ document.body.classList.add('survey-mode');
+ document.querySelector('.map-note').textContent='Road review — tap a highlighted street';
+ const card=document.getElementById('surveyCard'),count=document.getElementById('surveyCount'),message=document.getElementById('surveyMessage'),selectedLabel=document.getElementById('selectedSurveyRoad'),noteInput=document.getElementById('surveyRoadNote');
+ const roadLayer=L.layerGroup().addTo(map),colors={permitted:'#1f8f5f',restricted:'#d64a43',crossing:'#327cc7',uncertain:'#d89025'},labels={permitted:'Permitted',restricted:'Restricted',crossing:'Crossing only',uncertain:'Unsure'};
+ const roadLayers=new Map(),history=[];
+ let selectedRoad=null;
+ let records=[];
+ try{const parsed=JSON.parse(localStorage.getItem('cartpath-road-review-v2')||'[]');if(Array.isArray(parsed))records=parsed}catch(_){records=[]}
+ card.hidden=false;
+ function persist(){localStorage.setItem('cartpath-road-review-v2',JSON.stringify(records));count.textContent=`${records.length} classified`}
+ function applyRoadStyle(id){
+  const layers=roadLayers.get(String(id));if(!layers)return;
+  const record=records.find(item=>String(item.osm_id)===String(id)),active=selectedRoad&&String(selectedRoad.id)===String(id);
+  layers.visible.setStyle({color:active?'#111':record?colors[record.status]:'#7d8882',weight:active?8:record?7:4,opacity:(record||active)?0.95:0.55,dashArray:record?.status==='uncertain'?'7 6':null});
+ }
+ function selectRoad(road){
+  const previous=selectedRoad;selectedRoad=road;if(previous)applyRoadStyle(previous.id);applyRoadStyle(road.id);
+  const record=records.find(item=>String(item.osm_id)===String(road.id));
+  selectedLabel.textContent=`${road.name} — segment ${road.id}`;noteInput.value=record?.note||'';
+  document.querySelectorAll('.survey-type').forEach(button=>button.classList.toggle('active',button.dataset.surveyType===record?.status));
+  message.textContent=record?`Currently marked ${labels[record.status]}. Choose another status to change it.`:'Choose the status for this highlighted segment.';
+ }
+ document.querySelectorAll('.survey-type').forEach(button=>button.onclick=()=>{
+  if(!selectedRoad){message.textContent='Tap a highlighted street segment first.';return}
+  const index=records.findIndex(item=>String(item.osm_id)===String(selectedRoad.id)),previous=index>=0?{...records[index]}:null;
+  history.push({id:selectedRoad.id,previous});const record={osm_id:selectedRoad.id,status:button.dataset.surveyType,name:selectedRoad.name,note:noteInput.value.trim(),points:selectedRoad.points,updated_at:new Date().toISOString()};
+  if(index>=0)records[index]=record;else records.push(record);persist();applyRoadStyle(selectedRoad.id);
+  document.querySelectorAll('.survey-type').forEach(item=>item.classList.toggle('active',item===button));message.textContent=`${selectedRoad.name} saved as ${labels[record.status]}.`;
+ });
+ document.getElementById('undoSurveyRoad').onclick=()=>{
+  const change=history.pop();if(!change){message.textContent='No recent choice to undo.';return}
+  const index=records.findIndex(item=>String(item.osm_id)===String(change.id));if(index>=0)records.splice(index,1);if(change.previous)records.push(change.previous);persist();applyRoadStyle(change.id);message.textContent='Last classification undone.';
+ };
+ document.getElementById('clearSurvey').onclick=()=>{if(confirm('Remove every saved road classification from this device?')){records=[];history.length=0;persist();roadLayers.forEach((_,id)=>applyRoadStyle(id));message.textContent='Road review cleared.'}};
+ document.getElementById('exportSurvey').onclick=async()=>{
+  if(!records.length){message.textContent='Classify at least one road segment before exporting.';return}
+  const geojson={type:'FeatureCollection',properties:{project:'CartPath road review',privacy:'Selected OpenStreetMap road segments only; no continuous GPS history'},features:records.map(record=>({type:'Feature',properties:{osm_id:record.osm_id,status:record.status,label:labels[record.status],name:record.name,note:record.note,updated_at:record.updated_at},geometry:{type:'LineString',coordinates:record.points.map(point=>[point[1],point[0]])}}))};
+  const file=new File([JSON.stringify(geojson,null,2)],`cartpath-road-survey-${new Date().toISOString().slice(0,10)}.geojson`,{type:'application/geo+json'});
+  try{
+   if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:'CartPath road survey',files:[file]});message.textContent='Survey shared.'}
+   else{const url=URL.createObjectURL(file),link=document.createElement('a');link.href=url;link.download=file.name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message.textContent='Survey downloaded. Attach the GeoJSON file in this chat.'}
+  }catch(error){if(error.name!=='AbortError')message.textContent='Could not export. Try again from Safari.'}
+ };
+ function renderSelectableRoads(roads){
+  roadLayer.clearLayers();roadLayers.clear();
+  roads.forEach(road=>{
+   const visible=L.polyline(road.points,{color:'#7d8882',weight:4,opacity:.55}).addTo(roadLayer),hit=L.polyline(road.points,{color:'#000',weight:20,opacity:.001}).addTo(roadLayer);
+   visible.on('click',()=>selectRoad(road));hit.on('click',()=>selectRoad(road));roadLayers.set(String(road.id),{visible,hit});applyRoadStyle(road.id);
+  });
+  persist();selectedLabel.textContent='Tap any highlighted street segment';message.textContent=`${roads.length} Oakland-area road segments loaded. Zoom in, tap a segment, then choose its status.`;
+ }
+ async function loadSelectableRoads(){
+  count.textContent='Loading roads…';message.textContent='Loading Oakland-area street segments…';
+  try{
+   const response=await fetch('roads-oakland.json');if(!response.ok)throw new Error('Road data unavailable');
+   const roads=await response.json();renderSelectableRoads(roads);
+  }catch(_){count.textContent=`${records.length} classified`;selectedLabel.textContent='Street data could not load';message.textContent='Reload the page and try again.'}
+ }
+ document.getElementById('reloadSurveyRoads').onclick=loadSelectableRoads;
+ loadSelectableRoads();
+}
+
 let watchId=null,userMarker=null,accuracyCircle=null,wakeLock=null;
 const gpsBtn=document.getElementById('gpsBtn'),gpsLabel=document.getElementById('gpsLabel'),driveCard=document.getElementById('driveCard'),driveHeading=document.getElementById('driveHeading'),driveStatus=document.getElementById('driveStatus'),driveStatusText=document.getElementById('driveStatusText'),driveGuidance=document.getElementById('driveGuidance');
 function lineDistance(point,network){
