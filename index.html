@@ -36,18 +36,19 @@
       </div>
     </section>
 
-    <section class="route-card">
+    <section class="route-card drive-card" id="driveCard">
       <div class="route-head">
-        <span class="route-icon">⌂</span>
-        <div><p>PUBLIC START</p><strong>Oakland Park Community House</strong></div>
+        <span class="route-icon">◎</span>
+        <div><p>DRIVE MODE</p><strong id="driveHeading">Ready to follow your location</strong></div>
       </div>
-      <div id="routeStatus" class="route-status confirmed"><span></span><b id="routeStatusText">Continuous Plant-first route</b></div>
-      <p id="routeGuidance">Community House → Civitas → Tildenville School → Brick → West Story → West Plant → downtown. Oakland Park is shown as one connected community road network across the municipal boundary.</p>
-      <button id="showGapBtn" class="secondary-btn">View preferred corridor</button>
+      <div id="driveStatus" class="route-status"><span></span><b id="driveStatusText">Location not started</b></div>
+      <p id="driveGuidance">Green means you are near a mapped permitted corridor. Amber means this map cannot classify the road. Red means you are near a mapped restriction.</p>
+      <button id="overviewBtn" class="secondary-btn">Show full mapped area</button>
+      <button id="routeInfoBtn" class="secondary-btn">Plant route details</button>
     </section>
 
     <div class="gps-wrap">
-      <button id="gpsBtn" class="gps-btn"><span class="gps-dot">◎</span><span id="gpsLabel">Show my location</span></button>
+      <button id="gpsBtn" class="gps-btn"><span class="gps-dot">◎</span><span id="gpsLabel">Start drive mode</span></button>
     </div>
   </main>
 
@@ -91,7 +92,7 @@
     <div class="gap"><span>2</span><div><b>Civitas → Tildenville School → Brick</b><p>Tildenville School Road from Civitas to Brick was included in the January 2026 expansion.</p></div></div>
     <div class="gap"><span>3</span><div><b>Brick → West Story → West Plant</b><p>The expansion connects Brick to West Story and West Story to West Plant.</p></div></div>
     <div class="gap"><span>4</span><div><b>Stay on Plant toward downtown</b><p>West Plant is approved from West Story to South Park, where it joins the established downtown district.</p></div></div>
-    <p>The legal corridor is continuous. The next build step is turn-by-turn guidance, off-route warnings, and a road test; posted signs still control.</p>
+    <p>This is an optional suggested corridor, not a required route. Drive mode remains centered on your live location and classifies the nearest mapped road; posted signs still control.</p>
   </dialog>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
