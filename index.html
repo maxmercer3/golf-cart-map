@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#10251d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CartPath — Winter Garden & Oakland</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">WINTER GARDEN + OAKLAND</p>
+      <h1>CartPath</h1>
+    </div>
+    <button id="infoBtn" class="icon-btn" aria-label="Open map information">i</button>
+  </header>
+
+  <main>
+    <div id="map" aria-label="Interactive golf cart road map"></div>
+    <div class="map-note">Planning aid — signs and current law control</div>
+
+    <section class="legend-card" aria-label="Map legend">
+      <button class="legend-toggle" id="legendToggle" aria-expanded="true">
+        <span>Map key</span><span id="legendChevron">⌃</span>
+      </button>
+      <div id="legendBody" class="legend-body">
+        <div><span class="swatch green"></span>Verified designated corridor</div>
+        <div><span class="swatch red"></span>Restricted / no through travel</div>
+        <div><span class="swatch blue"></span>Authorized crossing</div>
+        <div><span class="swatch hoa dashed"></span>Oakland Park HOA-permitted (resident-confirmed)</div>
+      </div>
+    </section>
+
+    <section class="route-card">
+      <div class="route-head">
+        <span class="route-icon">⌂</span>
+        <div><p>START</p><strong>Hammock Preserve Loop</strong></div>
+      </div>
+      <div id="routeStatus" class="route-status confirmed"><span></span><b id="routeStatusText">Continuous Plant-first route</b></div>
+      <p id="routeGuidance">Hammock Preserve → Eaglescrest → Civitas → Tildenville School → Brick → West Story → West Plant → downtown. Oakland Park is one connected HOA-approved network across the municipal boundary.</p>
+      <button id="showGapBtn" class="secondary-btn">View preferred corridor</button>
+    </section>
+
+    <div class="gps-wrap">
+      <button id="gpsBtn" class="gps-btn"><span class="gps-dot">◎</span><span id="gpsLabel">Show my location</span></button>
+    </div>
+  </main>
+
+  <dialog id="infoDialog">
+    <div class="sheet-handle"></div>
+    <button class="close-btn" id="closeInfo" aria-label="Close">×</button>
+    <p class="eyebrow">DATA & SAFETY</p>
+    <h2>What this map means</h2>
+    <p>This is a conservative planning aid for standard golf carts (designed for golf-course/recreational use and not capable of more than 20 mph), not LSVs. Green appears only where the project can tie a corridor to an official municipal designation. Red is a warning layer, not a complete inventory of every prohibited road.</p>
+    <div class="callout warning"><b>Important:</b> A 25 mph speed limit does not by itself make a street legal. Municipal designation, posted signs, current law, and private-property rules still apply.</div>
+    <h3>Current findings</h3>
+    <ul>
+      <li>Oakland’s 2024 ordinance generally prohibits golf carts except on roadways or communities approved by resolution.</li>
+      <li>Oakland Avenue has no legal longitudinal travel; the Town identifies crossings at Pollard, Tubb, and Winter’s Landing.</li>
+      <li>Winter Garden uses a designated downtown district. Sidewalks and the West Orange Trail are not golf-cart routes.</li>
+      <li>Hammock Preserve Loop, the rest of Oakland Park, and all community exits are HOA-permitted for golf carts, based on the resident’s confirmation supplied November 13, 2026.</li>
+      <li>Oakland Park’s Oakland and Winter Garden portions directly adjoin. The municipal boundary inside the neighborhood does not create a route gap or require crossing another road.</li>
+      <li>Winter Garden’s January 8, 2026 expansion added the Civitas-to-Plant chain: Tildenville School Road, Brick Road, West Story Road, and West Plant Street to South Park Avenue.</li>
+    </ul>
+    <h3>Official sources</h3>
+    <ol class="sources">
+      <li><a href="https://www.oaklandfl.gov/178/Golf-Carts-in-Oakland" target="_blank" rel="noreferrer">Town of Oakland — golf cart page</a></li>
+      <li><a href="https://www.oaklandfl.gov/DocumentCenter/View/5149/Ord-2024-01-Golf-Carts" target="_blank" rel="noreferrer">Oakland Ordinance 2024-01</a></li>
+      <li><a href="https://www.oaklandfl.gov/DocumentCenter/View/5150/Resolution-2024-02---Golf-Cart-Street-Designation" target="_blank" rel="noreferrer">Oakland Resolution 2024-02 + map</a></li>
+      <li><a href="https://www.cwgdn.com/480/Golf-Cart-Information" target="_blank" rel="noreferrer">Winter Garden — golf cart information</a></li>
+      <li><a href="https://www.cwgdn.com/DocumentCenter/View/8019/Golf_Cart_District" target="_blank" rel="noreferrer">Winter Garden official district map</a></li>
+      <li><a href="https://mynews13.com/fl/orlando/news/2026/01/08/winter-garden-golf-carts" target="_blank" rel="noreferrer">January 2026 expansion street list</a></li>
+      <li><a href="https://www.cwgdn.com/DocumentCenter/View/2352/Ordinance-09-53---Golf-Cart-Operation" target="_blank" rel="noreferrer">Winter Garden Ordinance 09-53</a></li>
+      <li><a href="https://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&URL=0300-0399/0316/Sections/0316.212.html" target="_blank" rel="noreferrer">Florida Statutes §316.212</a></li>
+    </ol>
+    <p class="updated">Research checked November 13, 2026. Municipal changes and posted signs may supersede this map.</p>
+  </dialog>
+
+  <dialog id="gapDialog">
+    <div class="sheet-handle"></div>
+    <button class="close-btn" id="closeGap" aria-label="Close">×</button>
+    <p class="eyebrow">PREFERRED CORRIDOR</p>
+    <h2>Plant Street, with fewer bumps</h2>
+    <div class="gap"><span>1</span><div><b>Hammock Preserve → Eaglescrest → Civitas</b><p>This is a continuous internal Oakland Park connection. All neighborhood roads and exits are HOA-approved for golf-cart use.</p></div></div>
+    <div class="gap"><span>2</span><div><b>Civitas → Tildenville School → Brick</b><p>Tildenville School Road from Civitas to Brick was included in the January 2026 expansion.</p></div></div>
+    <div class="gap"><span>3</span><div><b>Brick → West Story → West Plant</b><p>The expansion connects Brick to West Story and West Story to West Plant.</p></div></div>
+    <div class="gap"><span>4</span><div><b>Stay on Plant toward downtown</b><p>West Plant is approved from West Story to South Park, where it joins the established downtown district.</p></div></div>
+    <p>The legal corridor is continuous. The next build step is turn-by-turn guidance, off-route warnings, and a road test; posted signs still control.</p>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
