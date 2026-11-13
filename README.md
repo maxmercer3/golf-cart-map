@@ -9,3 +9,5 @@ Drive mode follows the device's live GPS position and displays a glanceable stat
 Oakland Park is modeled as one continuous community road network spanning the Oakland/Winter Garden municipal boundary. The public route begins at the Oakland Park Community House, 1000 Civitas Way, and continues east on Civitas without exposing a resident's home street. There is no physical gap at the jurisdiction line.
 
 Open `dist/index.html` through a web server. Browser geolocation requires HTTPS (or localhost) and user permission. Drive mode requests a screen wake lock where supported; a mobile browser may suspend GPS if the page is closed or the phone is locked.
+
+Append `?survey=1` to open Road Review. It loads named OpenStreetMap road segments so a user can tap an exact segment and mark it permitted, restricted, crossing-only, or uncertain without drawing. Choices remain in that browser's local storage until the user explicitly shares or downloads a GeoJSON export; Road Review does not record continuous GPS history. Winter Garden designations should be classified from the official City map, while this review tool is primarily for unresolved Oakland segments.
